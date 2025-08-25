@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🔥 API Testing Dashboard
 
-## Getting Started
+A lightweight, browser-based API testing tool (like Postman, but simpler).  
+Built with **Next.js (Frontend)** and **Appwrite (Backend)**.
 
-First, run the development server:
+Users can test REST APIs, view responses, and save requests into collections — all in a clean dashboard UI.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Features
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### ✅ MVP
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Authentication (Appwrite: email/password, OAuth support).
+- API Request Builder (URL, method, headers, body).
+- Send requests securely via **Next.js API proxy**.
+- Response viewer (JSON, raw text, headers).
+- Save request history per user.
 
-## Learn More
+### 🌟 Extended Features (planned)
 
-To learn more about Next.js, take a look at the following resources:
+- Collections & folders for saved requests.
+- Environment variables (`{{baseUrl}}`, tokens).
+- Team collaboration (share collections).
+- Response time & status tracking.
+- AI-powered test suggestions.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🏗️ Architecture

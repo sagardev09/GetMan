@@ -3,15 +3,15 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import AuthPage from '@/components/auth/AuthPage';
+import Dashboard from '@/components/Dashboard';
 
-export default function Home() {
+export default function DashboardPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && user) {
-      router.push('/dashboard');
+    if (!loading && !user) {
+      router.push('/');
     }
   }, [user, loading, router]);
 
@@ -26,9 +26,9 @@ export default function Home() {
     );
   }
 
-  if (user) {
-    return null; // Will redirect to dashboard
+  if (!user) {
+    return null; // Will redirect to home page
   }
 
-  return <AuthPage />;
+  return <Dashboard />;
 }
