@@ -404,6 +404,141 @@ export const useRequests = () => {
     }
   }, [user]);
 
+  // Share a collection with all its requests and their responses
+  const shareCollection = async (collectionId) => {
+    if (!user) return { success: false, error: 'User not authenticated' };
+
+    try {
+      const collection = collections.find(c => c.$id === collectionId);
+      if (!collection) return { success: false, error: 'Collection not found' };
+
+      // Get all requests in the collection
+      let requestIds = collection.requests || [];
+      if (typeof requestIds === 'string') {
+        try {
+          requestIds = JSON.parse(requestIds);
+        } catch {
+          requestIds = [];
+        }
+      }
+
+      const collectionRequests = requests.filter(req => requestIds.includes(req.$id));
+
+      // Prepare collection data for sharing
+      const shareData = {
+        collectionName: collection.collectionName,
+        requests: collectionRequests.map(req => ({
+          name: req.name,
+          method: req.method,
+          url: req.url,
+          headers: typeof req.headers === 'string' ? JSON.parse(req.headers || '{}') : req.headers,
+          body: req.body || '',
+          // Note: We don't include actual response data here as it would be stale
+          // The shared page will show the request details only
+        }))
+      };
+
+      // Create share via API
+      const response = await fetch('/api/share', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'collection',
+          data: shareData
+        })
+      });
+
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create share');
+      }
+
+      return { success: true, shareUrl: result.shareUrl, shareId: result.shareId };
+    } catch (error) {
+      console.error('Failed to share collection:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  // Share a single request with its response (if available from history)
+  const shareRequest = async (requestId, includeResponse = false) => {
+    if (!user) return { success: false, error: 'User not authenticated' };
+
+    try {
+      const request = requests.find(r => r.$id === requestId);
+      if (!request) return { success: false, error: 'Request not found' };
+
+      // Prepare request data for sharing
+      let shareData = {
+        name: request.name,
+        method: request.method,
+        url: request.url,
+        headers: typeof request.headers === 'string' ? JSON.parse(request.headers || '{}') : request.headers,
+        body: request.body || ''
+      };
+
+      // If including response, find the most recent response from history
+      if (includeResponse) {
+        const recentResponse = history.find(h => 
+          h.method === request.method && h.url === request.url
+        );
+        
+        if (recentResponse) {
+          shareData.response = {
+            status: recentResponse.status,
+            statusText: getStatusText(recentResponse.status),
+            responseTime: recentResponse.responseTime,
+            data: typeof recentResponse.response === 'string' 
+              ? JSON.parse(recentResponse.response || '{}') 
+              : recentResponse.response,
+            headers: {} // Response headers aren't stored in history currently
+          };
+        }
+      }
+
+      // Create share via API
+      const response = await fetch('/api/share', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'request',
+          data: shareData
+        })
+      });
+
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create share');
+      }
+
+      return { success: true, shareUrl: result.shareUrl, shareId: result.shareId };
+    } catch (error) {
+      console.error('Failed to share request:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  // Helper function to get status text
+  const getStatusText = (status) => {
+    const statusTexts = {
+      200: 'OK',
+      201: 'Created',
+      204: 'No Content',
+      400: 'Bad Request',
+      401: 'Unauthorized',
+      403: 'Forbidden',
+      404: 'Not Found',
+      500: 'Internal Server Error'
+    };
+    return statusTexts[status] || 'Unknown';
+  };
+
   return {
     requests,
     collections,
@@ -420,6 +555,8 @@ export const useRequests = () => {
     fetchRequests,
     fetchCollections,
     fetchHistory,
+    shareCollection,
+    shareRequest,
     findRequestCollection: (requestId) => {
       return collections.find(collection => {
         let requestIds = collection.requests || [];

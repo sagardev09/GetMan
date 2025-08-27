@@ -135,10 +135,10 @@ export default function Dashboard() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-row min-w-0 ">
         {/* Request Builder */}
-        <div className="h-1/2 border-b border-border bg-background">
-          <div className="h-full p-3 overflow-auto">
+        <div className="w-1/2 border-b border-border bg-background">
+          <div className="h-full p-3 overflow-auto ">
             <RequestBuilder
               key={`${requestKey}-${
                 loadedRequest ? JSON.stringify(loadedRequest) : "empty"
@@ -151,7 +151,7 @@ export default function Dashboard() {
         </div>
 
         {/* Response Viewer */}
-        <div className="h-1/2 bg-background">
+        <div className="h-full w-1/2 bg-background">
           <div className="h-full p-3 overflow-auto">
             <ResponseViewer response={currentResponse} />
           </div>

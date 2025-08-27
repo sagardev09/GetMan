@@ -14,15 +14,18 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Send, Save, Code2 } from "lucide-react";
+import { Plus, Trash2, Send, Save, Code2, Share2 } from "lucide-react";
 import { Combobox } from "@/components/ui/combobox";
 import CurlModal from "./CurlModal";
+import ShareModal from "./ShareModal";
 import {
   COMMON_HEADERS,
   DEFAULT_HEADERS,
   getMethodColor,
 } from "@/lib/constants";
 import { useRequests } from "@/hooks/useRequests";
+import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 const HTTP_METHODS = [
   "GET",
@@ -52,6 +55,7 @@ export default function RequestBuilder({
   const [isSaving, setIsSaving] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState(null);
   const [showCurlModal, setShowCurlModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   // Update request data when initialData changes
   useEffect(() => {
@@ -61,7 +65,14 @@ export default function RequestBuilder({
       setSelectedCollection(initialData.collectionId || null);
     }
   }, [initialData]);
-  const { collections, saveRequestToCollection, removeRequestFromCollection, findRequestCollection } = useRequests();
+  const {
+    collections,
+    saveRequestToCollection,
+    removeRequestFromCollection,
+    findRequestCollection,
+    shareRequest,
+  } = useRequests();
+  const { toast } = useToast();
 
   const handleMethodChange = (method) => {
     setRequestData((prev) => ({ ...prev, method }));
@@ -135,7 +146,7 @@ export default function RequestBuilder({
     }
 
     setIsSaving(true);
-    
+
     try {
       if (selectedCollection) {
         // Save to specific collection
@@ -154,10 +165,15 @@ export default function RequestBuilder({
         // Save as independent request - but first check if it needs to be removed from a collection
         if (requestData.requestId) {
           // Find current collection for this request
-          const currentCollection = findRequestCollection(requestData.requestId);
+          const currentCollection = findRequestCollection(
+            requestData.requestId
+          );
           if (currentCollection) {
             // Remove from current collection since user wants it independent
-            await removeRequestFromCollection(currentCollection.$id, requestData.requestId);
+            await removeRequestFromCollection(
+              currentCollection.$id,
+              requestData.requestId
+            );
           }
         }
         return await onSaveRequest(requestData);
@@ -168,20 +184,50 @@ export default function RequestBuilder({
   };
 
   const handleImportCurl = (parsedData) => {
-    setRequestData(prevData => ({
+    setRequestData((prevData) => ({
       ...prevData,
-      method: parsedData.method || 'GET',
-      url: parsedData.url || '',
-      headers: parsedData.headers && parsedData.headers.length > 0 
-        ? parsedData.headers 
-        : DEFAULT_HEADERS,
-      body: parsedData.body || ''
+      method: parsedData.method || "GET",
+      url: parsedData.url || "",
+      headers:
+        parsedData.headers && parsedData.headers.length > 0
+          ? parsedData.headers
+          : DEFAULT_HEADERS,
+      body: parsedData.body || "",
     }));
   };
 
+  const handleShareRequest = async (id, includeResponse = false) => {
+    try {
+      const result = await shareRequest(id, includeResponse);
+      
+      if (result.success) {
+        toast({
+          title: "Share link created!",
+          description: "Your request has been shared successfully.",
+        });
+      } else {
+        toast({
+          title: "Failed to create share link",
+          description: result.error,
+          variant: "destructive",
+        });
+      }
+      
+      return result;
+    } catch (error) {
+      const errorMessage = error.message || 'An unexpected error occurred';
+      toast({
+        title: "Share failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      return { success: false, error: errorMessage };
+    }
+  };
+
   return (
-    <Card className="w-full">
-      <CardHeader>
+    <Card className="w-full h-full">
+      <CardHeader className="sticky top-0 bg-card z-10 border-b">
         <div className="flex items-center justify-between">
           <CardTitle>Request Builder</CardTitle>
           <div className="flex gap-2">
@@ -191,8 +237,18 @@ export default function RequestBuilder({
               onClick={() => setShowCurlModal(true)}
             >
               <Code2 className="w-4 h-4 mr-2" />
-              cURL
+              Code
             </Button>
+            {requestData.requestId && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowShareModal(true)}
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Share
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -287,104 +343,120 @@ export default function RequestBuilder({
           />
         </div>
 
-        {/* Headers Section */}
-        <div className="space-y-4  rounded-lg  bg-slate-50/50">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center justify-start gap-4">
-              <Label className="text-base font-semibold">Request Headers</Label>
-              <div className="text-xs text-muted-foreground">
-                {requestData.headers.length} header
-                {requestData.headers.length !== 1 ? "s" : ""} configured
-              </div>
-            </div>
-            <div>
-              <Button variant="outline" size="sm" onClick={addHeader}>
-                <Plus className="w-4 h-4 mr-1" />
-                Add Header
-              </Button>
-            </div>
-          </div>
+        {/* Request Details Tabs */}
+        <Tabs defaultValue="headers" className="w-full">
+          <TabsList>
+            <TabsTrigger value="headers">
+              Headers ({requestData.headers.length})
+            </TabsTrigger>
+            {requestData.method !== "GET" && (
+              <TabsTrigger value="body">Body</TabsTrigger>
+            )}
+          </TabsList>
 
-          <div
-            className="border rounded-md bg-white max-h-80 overflow-y-auto"
-            style={{
-              scrollbarWidth: "thin",
-              scrollbarColor: "#cbd5e1 #f1f5f9",
-            }}
-          >
-            <div className="space-y-3 p-4">
-              {requestData.headers.map((header, index) => (
-                <div
-                  key={index}
-                  className="flex gap-2 items-center p-3 border rounded-md bg-slate-50/30 hover:bg-slate-100/50 transition-colors shadow-sm"
-                >
-                  <div className="flex-1">
-                    <Label className="text-xs text-muted-foreground mb-1 block font-medium">
-                      Header Name
-                    </Label>
-                    <Combobox
-                      value={header.key}
-                      onValueChange={(value) =>
-                        updateHeader(index, "key", value)
-                      }
-                      options={COMMON_HEADERS}
-                      placeholder="Select or type header name"
-                      searchPlaceholder="Search headers..."
-                      emptyMessage="No headers found."
-                      className="w-full"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <Label className="text-xs text-muted-foreground mb-1 block font-medium">
-                      Header Value
-                    </Label>
-                    <Input
-                      value={header.value}
-                      onChange={(e) =>
-                        updateHeader(index, "value", e.target.value)
-                      }
-                      placeholder="Enter header value"
-                      className="w-full"
-                    />
-                  </div>
-                  <div className="flex flex-col justify-end pb-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeHeader(index)}
-                      disabled={requestData.headers.length === 1}
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10 transition-colors"
-                      title="Remove header"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+          <TabsContent value="headers" className="mt-4">
+            <div className="space-y-4 rounded-lg p-4 bg-muted/30 dark:bg-muted/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center justify-start gap-4">
+                  <Label className="text-base font-semibold">
+                    Request Headers
+                  </Label>
+                  <div className="text-xs text-muted-foreground">
+                    {requestData.headers.length} header
+                    {requestData.headers.length !== 1 ? "s" : ""} configured
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
+                <div>
+                  <Button variant="outline" size="sm" onClick={addHeader}>
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add Header
+                  </Button>
+                </div>
+              </div>
 
-        {/* Request Body Section */}
-        {requestData.method !== "GET" && (
-          <div className="space-y-4 border rounded-lg p-4 bg-slate-50/50">
-            <Label className="text-base font-semibold">Request Body</Label>
-            <div className="space-y-2">
-              <Label className="text-sm text-muted-foreground">
-                JSON Content
-              </Label>
-              <Textarea
-                value={requestData.body}
-                onChange={(e) => handleBodyChange(e.target.value)}
-                placeholder={`{
+              <div
+                className="border rounded-md bg-background dark:bg-card 
+                max-h-[500px] overflow-y-auto"
+                style={{
+                  scrollbarWidth: "thin",
+                }}
+              >
+                <div className="space-y-3 p-4">
+                  {requestData.headers.map((header, index) => (
+                    <div
+                      key={index}
+                      className="flex gap-2  p-3 border rounded-md bg-muted/50 hover:bg-muted/70 dark:bg-muted/30 dark:hover:bg-muted/50 transition-colors shadow-sm items-center"
+                    >
+                      <div className="flex-1">
+                        <Label className="text-xs text-muted-foreground mb-1 block font-medium">
+                          Header Name
+                        </Label>
+                        <Combobox
+                          value={header.key}
+                          onValueChange={(value) =>
+                            updateHeader(index, "key", value)
+                          }
+                          options={COMMON_HEADERS}
+                          placeholder="Select or type header name"
+                          searchPlaceholder="Search headers..."
+                          emptyMessage="No headers found."
+                          className="w-full"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <Label className="text-xs text-muted-foreground mb-1 block font-medium">
+                          Header Value
+                        </Label>
+                        <Input
+                          value={header.value}
+                          onChange={(e) =>
+                            updateHeader(index, "value", e.target.value)
+                          }
+                          placeholder="Enter header value"
+                          className="w-full"
+                        />
+                      </div>
+                      <div className="flex flex-col justify-end mt-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => removeHeader(index)}
+                          disabled={requestData.headers.length === 1}
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10 transition-colors"
+                          title="Remove header"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          {requestData.method !== "GET" && (
+            <TabsContent value="body" className="mt-4">
+              <div className="space-y-4 border rounded-lg p-4 bg-muted/30 dark:bg-muted/20">
+                <Label className="text-base font-semibold">Request Body</Label>
+                <div className="space-y-2">
+                  <Label className="text-sm text-muted-foreground">
+                    JSON Content
+                  </Label>
+                  <Textarea
+                    value={requestData.body}
+                    onChange={(e) => handleBodyChange(e.target.value)}
+                    placeholder={`{
   "key": "value",
   "array": [1, 2, 3]
 }`}
-                className="min-h-32 font-mono text-sm bg-white"
-              />
-            </div>
-          </div>
-        )}
+                    className="min-h-32 font-mono text-sm bg-background dark:bg-card"
+                  />
+                </div>
+              </div>
+            </TabsContent>
+          )}
+        </Tabs>
       </CardContent>
 
       {/* cURL Modal */}
@@ -393,6 +465,15 @@ export default function RequestBuilder({
         onClose={() => setShowCurlModal(false)}
         requestData={requestData}
         onImportCurl={handleImportCurl}
+      />
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        type="request"
+        data={requestData}
+        onShare={handleShareRequest}
       />
     </Card>
   );

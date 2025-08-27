@@ -31,11 +31,15 @@ import {
   ChevronDown,
   ChevronRight,
   RefreshCw,
+  Share2,
+  Code2,
 } from "lucide-react";
 import { useRequests } from "@/hooks/useRequests";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import HistoryDetailModal from "./HistoryDetailModal";
+import ShareModal from "./ShareModal";
+import CurlModal from "./CurlModal";
 import { getMethodColor } from "@/lib/constants";
 import {
   DropdownMenu,
@@ -43,6 +47,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ThemeToggle } from "./theme-toggle";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Sidebar({ onLoadRequest, onNewRequest, onLogout }) {
   const { user, logout } = useAuth();
@@ -58,13 +64,21 @@ export default function Sidebar({ onLoadRequest, onNewRequest, onLogout }) {
     fetchRequests,
     fetchCollections,
     fetchHistory,
+    shareCollection,
+    shareRequest,
   } = useRequests();
+  const { toast } = useToast();
   const [newCollectionName, setNewCollectionName] = useState("");
   const [showNewCollectionDialog, setShowNewCollectionDialog] = useState(false);
   const [selectedHistoryItem, setSelectedHistoryItem] = useState(null);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [expandedCollections, setExpandedCollections] = useState(new Set());
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [shareData, setShareData] = useState(null);
+  const [shareType, setShareType] = useState(null);
+  const [curlModalOpen, setCurlModalOpen] = useState(false);
+  const [curlRequestData, setCurlRequestData] = useState(null);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -141,12 +155,73 @@ export default function Sidebar({ onLoadRequest, onNewRequest, onLogout }) {
     }
   };
 
+  const handleShareCollection = (collection) => {
+    setShareData(collection);
+    setShareType('collection');
+    setShareModalOpen(true);
+  };
+
+  const handleShareRequest = (request) => {
+    setShareData(request);
+    setShareType('request');
+    setShareModalOpen(true);
+  };
+
+  const handleShowCode = (request) => {
+    // Convert headers from string to array format if needed
+    let headers = request.headers;
+    if (typeof headers === 'string') {
+      headers = JSON.parse(headers || '[]');
+    }
+    
+    setCurlRequestData({
+      ...request,
+      headers: headers
+    });
+    setCurlModalOpen(true);
+  };
+
+  const handleShare = async (id, includeResponse = false) => {
+    try {
+      let result;
+      if (shareType === 'collection') {
+        result = await shareCollection(id);
+      } else {
+        result = await shareRequest(id, includeResponse);
+      }
+      
+      if (result.success) {
+        toast({
+          title: "Share link created!",
+          description: `Your ${shareType} has been shared successfully.`,
+        });
+      } else {
+        toast({
+          title: "Failed to create share link",
+          description: result.error,
+          variant: "destructive",
+        });
+      }
+      
+      return result;
+    } catch (error) {
+      const errorMessage = error.message || 'An unexpected error occurred';
+      toast({
+        title: "Share failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      return { success: false, error: errorMessage };
+    }
+  };
+
   return (
-    <Card className="h-full flex flex-col py-0">
+    <Card className="h-full flex flex-col py-0 pb-8 overflow-hidden">
       <CardHeader className=" flex-shrink-0 pt-2  ">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">GetMan</CardTitle>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm">
@@ -272,6 +347,15 @@ export default function Sidebar({ onLoadRequest, onNewRequest, onLogout }) {
                             <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation();
+                                handleShareRequest(request);
+                              }}
+                            >
+                              <Share2 className="w-4 h-4 mr-2" />
+                              Share Request
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 deleteRequest(request.$id);
                               }}
                               className="text-destructive"
@@ -353,7 +437,7 @@ export default function Sidebar({ onLoadRequest, onNewRequest, onLogout }) {
 
                     return (
                       <Collapsible key={collection.$id}>
-                        <div className="border rounded-md">
+                        <div className="border rounded-md group">
                           <CollapsibleTrigger asChild>
                             <div
                               className="p-2 hover:bg-muted cursor-pointer flex items-center justify-between w-full"
@@ -361,7 +445,7 @@ export default function Sidebar({ onLoadRequest, onNewRequest, onLogout }) {
                                 toggleCollectionExpanded(collection.$id)
                               }
                             >
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
                                 {isExpanded ? (
                                   <ChevronDown className="w-4 h-4" />
                                 ) : (
@@ -372,9 +456,34 @@ export default function Sidebar({ onLoadRequest, onNewRequest, onLogout }) {
                                   {collection.collectionName}
                                 </span>
                               </div>
-                              <Badge variant="outline" className="text-xs">
-                                {collectionRequests.length}
-                              </Badge>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="text-xs">
+                                  {collectionRequests.length}
+                                </Badge>
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <MoreVertical className="w-4 h-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent>
+                                      <DropdownMenuItem
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleShareCollection(collection);
+                                        }}
+                                      >
+                                        <Share2 className="w-4 h-4 mr-2" />
+                                        Share Collection
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </div>
                             </div>
                           </CollapsibleTrigger>
 
@@ -420,6 +529,39 @@ export default function Sidebar({ onLoadRequest, onNewRequest, onLogout }) {
                                             {request.url}
                                           </p>
                                         </div>
+
+                                        <DropdownMenu>
+                                          <DropdownMenuTrigger asChild>
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              className="opacity-0 group-hover:opacity-100"
+                                              onClick={(e) => e.stopPropagation()}
+                                            >
+                                              <MoreVertical className="w-4 h-4" />
+                                            </Button>
+                                          </DropdownMenuTrigger>
+                                          <DropdownMenuContent>
+                                            <DropdownMenuItem
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleShowCode(request);
+                                              }}
+                                            >
+                                              <Code2 className="w-4 h-4 mr-2" />
+                                              View Code
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleShareRequest(request);
+                                              }}
+                                            >
+                                              <Share2 className="w-4 h-4 mr-2" />
+                                              Share Request
+                                            </DropdownMenuItem>
+                                          </DropdownMenuContent>
+                                        </DropdownMenu>
                                       </div>
                                     </div>
                                   ))}
@@ -502,6 +644,23 @@ export default function Sidebar({ onLoadRequest, onNewRequest, onLogout }) {
         onClose={() => setShowHistoryModal(false)}
         onTestAgain={handleTestAgain}
       />
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        type={shareType}
+        data={shareData}
+        onShare={handleShare}
+      />
+      
+      {curlRequestData && (
+        <CurlModal
+          isOpen={curlModalOpen}
+          onClose={() => setCurlModalOpen(false)}
+          requestData={curlRequestData}
+        />
+      )}
     </Card>
   );
 }
