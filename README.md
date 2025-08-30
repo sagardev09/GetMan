@@ -20,6 +20,7 @@
 ## ✨ Features
 
 ### 🎯 **Core Functionality**
+
 - **🔧 Request Builder** - Intuitive interface for crafting HTTP requests
 - **📊 Response Viewer** - Beautiful response visualization with syntax highlighting
 - **📁 Collections** - Organize your APIs into structured collections
@@ -27,12 +28,14 @@
 - **🔒 Authentication** - Secure user accounts with Appwrite
 
 ### 🎨 **Modern UI/UX**
+
 - **🌙 Dark/Light Theme** - Seamless theme switching
 - **📱 Responsive Design** - Perfect on desktop, tablet, and mobile
 - **⚡ Fast Performance** - Built with Next.js 15 and Turbopack
 - **🎨 Beautiful Components** - Powered by Radix UI and shadcn/ui
 
 ### 🚀 **Advanced Features**
+
 - **🔗 Sharing** - Share collections and requests with public links
 - **📋 cURL Import/Export** - Convert between cURL and requests
 - **🏷️ Method Badges** - Color-coded HTTP method indicators
@@ -40,6 +43,7 @@
 - **💾 Auto-Save** - Never lose your work with intelligent saving
 
 ### 🛡️ **Security & Privacy**
+
 - **🔐 Secure Proxy** - All requests go through secure Next.js proxy
 - **👤 User Isolation** - Your data stays private and secure
 - **⏰ Link Expiration** - Shared links auto-expire for security
@@ -54,6 +58,7 @@
 <td>
 
 **Frontend**
+
 - Next.js 15.5.0
 - React 19.1.0
 - Tailwind CSS 4.0
@@ -64,6 +69,7 @@
 <td>
 
 **Backend**
+
 - Appwrite (Auth, DB, Storage)
 - Next.js API Routes
 - Server-side Proxy
@@ -77,19 +83,22 @@
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - npm or yarn
 - Appwrite instance (cloud or self-hosted)
 
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/yourusername/getman.git
    cd getman
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    # or
@@ -97,11 +106,13 @@
    ```
 
 3. **Set up environment variables**
+
    ```bash
    cp .env.example .env.local
    ```
-   
+
    Configure your `.env.local`:
+
    ```env
    NEXT_PUBLIC_APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
    NEXT_PUBLIC_APPWRITE_PROJECT_ID=your_project_id
@@ -109,11 +120,13 @@
    ```
 
 4. **Configure Appwrite**
+
    - Create a new Appwrite project
    - Set up the required database collections (see [Database Schema](#database-schema))
    - Configure authentication providers
 
 5. **Start the development server**
+
    ```bash
    npm run dev
    # or
@@ -130,35 +143,39 @@
 ### Collections Required in Appwrite:
 
 #### `api_requests`
-| Field | Type | Description |
-|-------|------|-------------|
-| `userId` | String | User ID reference |
-| `name` | String | Request name |
-| `method` | String | HTTP method |
-| `url` | String | API endpoint |
-| `headers` | JSON | Request headers |
-| `body` | String | Request body |
+
+| Field       | Type     | Description        |
+| ----------- | -------- | ------------------ |
+| `userId`    | String   | User ID reference  |
+| `name`      | String   | Request name       |
+| `method`    | String   | HTTP method        |
+| `url`       | String   | API endpoint       |
+| `headers`   | JSON     | Request headers    |
+| `body`      | String   | Request body       |
 | `createdAt` | DateTime | Creation timestamp |
 
 #### `api_collections`
-| Field | Type | Description |
-|-------|------|-------------|
-| `userId` | String | Owner user ID |
-| `collectionName` | String | Collection name |
-| `requests` | Array | Request IDs |
-| `createdAt` | DateTime | Creation timestamp |
+
+| Field            | Type     | Description        |
+| ---------------- | -------- | ------------------ |
+| `userId`         | String   | Owner user ID      |
+| `collectionName` | String   | Collection name    |
+| `requests`       | Array    | Request IDs        |
+| `createdAt`      | DateTime | Creation timestamp |
 
 #### `api_history`
-| Field | Type | Description |
-|-------|------|-------------|
-| `userId` | String | User ID |
-| `requestData` | JSON | Original request |
-| `responseData` | JSON | Response data |
-| `status` | Integer | HTTP status code |
-| `responseTime` | Integer | Response time (ms) |
-| `createdAt` | DateTime | Execution timestamp |
+
+| Field          | Type     | Description         |
+| -------------- | -------- | ------------------- |
+| `userId`       | String   | User ID             |
+| `requestData`  | JSON     | Original request    |
+| `responseData` | JSON     | Response data       |
+| `status`       | Integer  | HTTP status code    |
+| `responseTime` | Integer  | Response time (ms)  |
+| `createdAt`    | DateTime | Execution timestamp |
 
 #### `shared_collections` & `shared_requests`
+
 For the sharing feature - see [SHARING_FEATURE.md](./SHARING_FEATURE.md) for details.
 
 ---
@@ -166,27 +183,32 @@ For the sharing feature - see [SHARING_FEATURE.md](./SHARING_FEATURE.md) for det
 ## 🎮 Usage
 
 ### 1. **Authentication**
+
 - Sign up or log in using email/password
 - Secure authentication powered by Appwrite
 
 ### 2. **Making Requests**
+
 - Select HTTP method (GET, POST, PUT, DELETE, etc.)
-- Enter your API endpoint URL  
+- Enter your API endpoint URL
 - Add headers using the smart autocomplete
 - Include request body for POST/PUT requests
 - Click **Send** to execute
 
 ### 3. **Managing Collections**
+
 - Create collections to organize related requests
 - Drag and drop requests between collections
 - Share entire collections with public links
 
 ### 4. **Viewing Responses**
+
 - **Pretty** - Formatted JSON with syntax highlighting
 - **Raw** - Raw response data
 - **Headers** - Response headers in key-value format
 
 ### 5. **Sharing**
+
 - Share individual requests or entire collections
 - Generate public links that expire in 30 days
 - No authentication required for viewers
@@ -243,8 +265,9 @@ User Interface (Next.js + React)
 ```
 
 ### Request Flow
+
 1. **User Input** → Request Builder UI
-2. **Authentication** → Appwrite validates user session  
+2. **Authentication** → Appwrite validates user session
 3. **Proxy Layer** → Next.js `/api/proxy` handles CORS and security
 4. **External API** → Request forwarded to target endpoint
 5. **Response Processing** → Data formatted and displayed
@@ -263,6 +286,7 @@ We welcome contributions! Please follow these steps:
 5. Open a Pull Request
 
 ### Development Guidelines
+
 - Follow the existing code style
 - Add tests for new features
 - Update documentation as needed
@@ -288,9 +312,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/yourusername/getman/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/yourusername/getman/discussions)
-- 📧 **Email**: support@getman.dev
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/sagardev09/getman/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/sagardev09/getman/discussions)
+- 📧 **Email**: official.sagar.dev@gmail.com
 
 ---
 
@@ -298,6 +322,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made with ❤️ for the API testing community**
 
-[⭐ Star on GitHub](https://github.com/yourusername/getman) • [🐦 Follow on Twitter](https://twitter.com/getman_dev)
+[⭐ Star on GitHub](https://github.com/sagardev09/getman) •
 
 </div>
