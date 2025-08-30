@@ -70,403 +70,430 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="mx-auto w-full">
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 relative overflow-hidden ">
-        <div className="container mx-auto">
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div
-              className="absolute w-96 h-96 bg-blue-400/10 rounded-full blur-3xl animate-pulse"
-              style={{
-                left: mousePosition.x * 0.02 + "%",
-                top: mousePosition.y * 0.02 + "%",
-                transform: "translate(-50%, -50%)",
-              }}
-            />
-            <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-indigo-400/10 rounded-full blur-2xl animate-bounce [animation-duration:3s]" />
-            <div className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-purple-400/10 rounded-full blur-3xl animate-pulse [animation-delay:1s]" />
+    <div className="w-full ">
+      {/* Header */}
+      <header className="sticky mx-auto container top-0 z-20 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center shadow">
+              <Zap className="w-5 h-5 text-white" />
+            </div>
+            <span className="font-bold text-xl text-foreground text-balance">
+              GetMan
+            </span>
+            <Badge variant="secondary" className="hidden sm:inline-flex">
+              v2.0
+            </Badge>
           </div>
 
-          {/* Header */}
-          <header className="relative z-10 border-b border-white/20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-900/60">
-            <div className="container flex h-20 items-center justify-between">
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            {user ? (
               <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-3">
-                  <div className="relative group">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300 group-hover:scale-110">
-                      <Zap className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl opacity-0 group-hover:opacity-20 blur transition-opacity duration-300" />
-                  </div>
-                  <span className="font-bold text-2xl bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
-                    GetMan
-                  </span>
-                </div>
-                <Badge
-                  variant="secondary"
-                  className="hidden sm:inline-flex bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800 animate-pulse"
+                <Button
+                  variant="outline"
+                  onClick={goToDashboard}
+                  className="group hover:bg-blue-50 dark:hover:bg-blue-950/50 border-blue-200 dark:border-blue-800 transition-all duration-300 bg-transparent"
                 >
-                  v2.0
-                </Badge>
+                  Dashboard
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+                </Button>
+                <UserDropdown user={user} />
               </div>
-
-              <div className="flex items-center space-x-4">
-                <ThemeToggle />
-                {user ? (
-                  <div className="flex items-center space-x-3">
-                    <Button
-                      variant="outline"
-                      onClick={goToDashboard}
-                      className="group hover:bg-blue-50 dark:hover:bg-blue-950/50 border-blue-200 dark:border-blue-800 transition-all duration-300 bg-transparent"
-                    >
-                      Dashboard
-                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
-                    </Button>
-                    <UserDropdown user={user} />
-                  </div>
-                ) : (
-                  <div className="flex items-center space-x-3">
-                    <Button
-                      variant="ghost"
-                      onClick={openSignIn}
-                      className="hover:bg-blue-50 dark:hover:bg-blue-950/50 transition-all duration-300"
-                    >
-                      Sign In
-                    </Button>
-                    <Button
-                      onClick={openSignUp}
-                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-blue-500/25 transition-all duration-300 hover:scale-105"
-                    >
-                      Get Started
-                    </Button>
-                  </div>
-                )}
+            ) : (
+              <div className="flex items-center space-x-3">
+                <Button
+                  variant="ghost"
+                  onClick={openSignIn}
+                  className="hover:bg-blue-50 dark:hover:bg-blue-950/50 transition-all duration-300"
+                >
+                  Sign In
+                </Button>
+                <Button
+                  onClick={openSignUp}
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-blue-500/25 transition-all duration-300 hover:scale-105"
+                >
+                  Get Started
+                </Button>
               </div>
-            </div>
-          </header>
+            )}
+          </div>
+        </div>
+      </header>
 
-          {/* Hero Section */}
-          <section className="relative z-10 container py-32 lg:py-40">
-            <div className="text-center space-y-12 max-w-5xl mx-auto">
-              <div className="space-y-8">
-                <div className="inline-flex items-center space-x-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50 rounded-full px-6 py-3 shadow-lg animate-fade-in">
-                  <Sparkles className="w-4 h-4 text-blue-600 animate-pulse" />
-                  <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                    The Modern API Testing Tool
-                  </span>
-                </div>
-
-                <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-none">
-                  Test APIs Like a{" "}
-                  <span className="relative inline-block">
-                    <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent animate-gradient-x">
-                      Pro
-                    </span>
-                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 via-indigo-600/20 to-purple-600/20 blur-lg animate-pulse" />
-                  </span>
-                </h1>
-
-                <p className="mx-auto max-w-3xl text-xl lg:text-2xl text-slate-600 dark:text-slate-300 leading-relaxed">
-                  A lightweight, powerful alternative to Postman. Test, debug,
-                  and document your APIs with beautiful code generation and
-                  seamless collaboration.
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                {user ? (
-                  <Button
-                    size="lg"
-                    onClick={goToDashboard}
-                    className="group bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-lg px-8 py-4 h-auto shadow-xl hover:shadow-blue-500/25 transition-all duration-300 hover:scale-105"
-                  >
-                    Open Dashboard
-                    <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
-                  </Button>
-                ) : (
-                  <>
-                    <Button
-                      size="lg"
-                      onClick={openSignUp}
-                      className="group bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-lg px-8 py-4 h-auto shadow-xl hover:shadow-blue-500/25 transition-all duration-300 hover:scale-105"
-                    >
-                      Start Testing APIs
-                      <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
-                    </Button>
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      onClick={openSignIn}
-                      className="text-lg px-8 py-4 h-auto border-2 hover:bg-blue-50 dark:hover:bg-blue-950/50 border-blue-200 dark:border-blue-800 transition-all duration-300 hover:scale-105 bg-transparent"
-                    >
-                      Sign In
-                    </Button>
-                  </>
-                )}
-              </div>
-
-              <div className="flex items-center justify-center space-x-2 text-lg">
-                <div className="flex space-x-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="w-5 h-5 fill-yellow-400 text-yellow-400 animate-pulse"
-                      style={{ animationDelay: `${i * 0.1}s` }}
-                    />
-                  ))}
-                </div>
-                <span className="ml-3 text-slate-600 dark:text-slate-300 font-medium">
-                  Trusted by developers worldwide
+      <main className="w-full mx-auto">
+        {/* Hero */}
+        <section className="container mx-auto py-16 lg:py-24">
+          <div className="grid gap-10 md:grid-cols-2 md:items-center">
+            {/* Left: headline and CTAs */}
+            <div className="space-y-8">
+              <div className="inline-flex items-center gap-2 border rounded-full px-4 py-2">
+                <Sparkles className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                  The Modern API Testing Tool
                 </span>
               </div>
-            </div>
-          </section>
 
-          {/* Features Section */}
-          <section className="relative z-10 container py-32">
-            <div className="text-center mb-20">
-              <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
-                Everything You Need
-              </h2>
-              <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
-                From simple GET requests to complex API workflows, GetMan
-                provides all the tools you need for efficient API development.
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight text-balance">
+                Test APIs Like a{" "}
+                <span className="inline-block text-blue-600">Pro</span>
+              </h1>
+
+              <p className="max-w-xl text-lg md:text-xl text-muted-foreground leading-relaxed">
+                A lightweight, powerful alternative to Postman. Test, debug, and
+                document your APIs with beautiful code generation and seamless
+                collaboration.
               </p>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[
-                {
-                  icon: Code2,
-                  title: "Code Generation",
-                  description:
-                    "Generate ready-to-use code snippets in 6+ languages including JavaScript, Python, Go, and more.",
-                  color: "blue",
-                  gradient: "from-blue-500 to-cyan-500",
-                },
-                {
-                  icon: Globe,
-                  title: "Universal Compatibility",
-                  description:
-                    "Works with any REST API. Import cURL commands, test endpoints, and export results effortlessly.",
-                  color: "green",
-                  gradient: "from-green-500 to-emerald-500",
-                },
-                {
-                  icon: Shield,
-                  title: "Secure & Private",
-                  description:
-                    "Your API keys and sensitive data remain secure with enterprise-grade encryption and privacy.",
-                  color: "purple",
-                  gradient: "from-purple-500 to-violet-500",
-                },
-                {
-                  icon: Clock,
-                  title: "Request History",
-                  description:
-                    "Track all your API requests with detailed history, response times, and status codes.",
-                  color: "orange",
-                  gradient: "from-orange-500 to-red-500",
-                },
-                {
-                  icon: Users,
-                  title: "Team Collections",
-                  description:
-                    "Organize requests into collections and share them with your team for better collaboration.",
-                  color: "pink",
-                  gradient: "from-pink-500 to-rose-500",
-                },
-                {
-                  icon: Zap,
-                  title: "Lightning Fast",
-                  description:
-                    "Built for speed with modern tech stack. Test APIs instantly without any lag or delays.",
-                  color: "teal",
-                  gradient: "from-teal-500 to-cyan-500",
-                },
-              ].map((feature, index) => (
-                <Card
-                  key={index}
-                  className="group border-0 shadow-lg hover:shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm transition-all duration-500 hover:scale-105 hover:-translate-y-2 cursor-pointer"
-                  style={{ animationDelay: `${index * 0.1}s` }}
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <Button
+                  size="lg"
+                  className="group bg-blue-600 hover:bg-blue-700 text-white text-base px-7 h-11"
+                  asChild
                 >
-                  <CardContent className="p-8">
-                    <div className="relative mb-6">
-                      <div
-                        className={`w-16 h-16 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}
-                      >
-                        <feature.icon className="w-8 h-8 text-white" />
-                      </div>
-                      <div
-                        className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} rounded-2xl opacity-0 group-hover:opacity-20 blur transition-opacity duration-300`}
-                      />
-                    </div>
-                    <h3 className="font-bold text-xl mb-4 text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
-                      {feature.title}
-                    </h3>
-                    <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-
-          <section className="relative z-10 container py-32">
-            <div className="text-center mb-20">
-              <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
-                Loved by Developers
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                {
-                  quote:
-                    "GetMan has completely transformed how our team tests APIs. The code generation feature alone saves us hours every week.",
-                  author: "Sarah Chen",
-                  role: "Senior Developer at TechCorp",
-                },
-                {
-                  quote:
-                    "Finally, a Postman alternative that doesn't feel bloated. Clean, fast, and exactly what we needed.",
-                  author: "Marcus Rodriguez",
-                  role: "API Lead at StartupXYZ",
-                },
-                {
-                  quote:
-                    "The collaboration features are game-changing. Our entire team can now work seamlessly on API testing.",
-                  author: "Emily Johnson",
-                  role: "Engineering Manager",
-                },
-              ].map((testimonial, index) => (
-                <Card
-                  key={index}
-                  className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  <a href="/signup">
+                    Start Testing APIs
+                    <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </a>
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="text-base px-7 h-11 bg-transparent"
+                  asChild
                 >
-                  <CardContent className="p-8">
-                    <div className="flex space-x-1 mb-4">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className="w-4 h-4 fill-yellow-400 text-yellow-400"
-                        />
-                      ))}
-                    </div>
-                    <p className="text-slate-600 dark:text-slate-300 mb-6 italic leading-relaxed">
-                      "{testimonial.quote}"
-                    </p>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center">
-                        <span className="text-white font-semibold text-sm">
-                          {testimonial.author
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-slate-900 dark:text-white">
-                          {testimonial.author}
-                        </p>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
-                          {testimonial.role}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
+                  <a href="/sign-in">Sign In</a>
+                </Button>
+              </div>
 
-          {/* CTA Section */}
-          <section className="relative z-10 container py-32">
-            <div className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-3xl p-16 text-center text-white overflow-hidden shadow-2xl">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/90 via-indigo-600/90 to-purple-600/90 backdrop-blur-sm" />
-              <div className="absolute top-0 left-1/4 w-32 h-32 bg-white/10 rounded-full blur-2xl animate-pulse" />
-              <div className="absolute bottom-0 right-1/4 w-40 h-40 bg-white/10 rounded-full blur-3xl animate-pulse [animation-delay:1s]" />
-
-              <div className="relative z-10">
-                <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                  Ready to Supercharge Your API Testing?
-                </h2>
-                <p className="text-blue-100 mb-10 max-w-3xl mx-auto text-xl leading-relaxed">
-                  Join thousands of developers who trust GetMan for their API
-                  testing needs. Start building better APIs today.
-                </p>
-
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                  {user ? (
-                    <Button
-                      size="lg"
-                      variant="secondary"
-                      onClick={goToDashboard}
-                      className="group text-lg px-8 py-4 h-auto bg-white text-blue-600 hover:bg-blue-50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                    >
-                      Go to Dashboard
-                      <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
-                    </Button>
-                  ) : (
-                    <>
-                      <Button
-                        size="lg"
-                        variant="secondary"
-                        onClick={openSignUp}
-                        className="group text-lg px-8 py-4 h-auto bg-white text-blue-600 hover:bg-blue-50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                      >
-                        Get Started for Free
-                        <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
-                      </Button>
-                      <div className="flex items-center space-x-2 text-blue-100">
-                        <CheckCircle className="w-5 h-5" />
-                        <span>No credit card required</span>
-                      </div>
-                    </>
-                  )}
-                </div>
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <CheckCircle className="w-5 h-5 text-blue-600" />
+                <span>No credit card required</span>
               </div>
             </div>
-          </section>
 
-          {/* Footer */}
-          <footer className="relative z-10 border-t border-white/20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl">
-            <div className="container py-12">
-              <div className="flex flex-col lg:flex-row items-center justify-between space-y-6 lg:space-y-0">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                    <Zap className="w-5 h-5 text-white" />
+            {/* Right: presentational code/request preview card */}
+            <Card className="border shadow-sm">
+              <CardContent className="p-0">
+                {/* Header bar */}
+                <div className="flex items-center justify-between px-4 py-3 border-b">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="h-2.5 w-2.5 rounded-full bg-red-400"
+                      aria-hidden
+                    />
+                    <span
+                      className="h-2.5 w-2.5 rounded-full bg-yellow-400"
+                      aria-hidden
+                    />
+                    <span
+                      className="h-2.5 w-2.5 rounded-full bg-green-400"
+                      aria-hidden
+                    />
                   </div>
-                  <span className="font-bold text-xl bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
-                    GetMan
+                  <span className="text-xs text-muted-foreground">
+                    Request Preview
                   </span>
                 </div>
 
-                <div className="flex items-center space-x-8 text-slate-600 dark:text-slate-300">
-                  <span className="text-sm">
-                    © 2024 GetMan. All rights reserved.
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="hover:bg-blue-50 dark:hover:bg-blue-950/50 transition-all duration-300 hover:scale-110"
-                  >
-                    <Github className="w-5 h-5" />
-                  </Button>
+                {/* Request builder row */}
+                <div className="px-4 py-4 grid gap-3">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="font-mono">
+                      GET
+                    </Badge>
+                    <div className="flex-1 rounded-md border bg-background px-3 py-2 text-sm font-mono truncate">
+                      https://api.example.dev/v1/users?id=42
+                    </div>
+                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                      Send
+                    </Button>
+                  </div>
+
+                  {/* Response */}
+                  <div className="rounded-md border bg-muted/40">
+                    <div className="flex items-center justify-between border-b px-3 py-2">
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="rounded-full bg-green-500/10 text-green-700 dark:text-green-300 px-2 py-0.5">
+                          200 OK
+                        </span>
+                        <span className="text-muted-foreground">128ms</span>
+                        <span className="text-muted-foreground">1.2kb</span>
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        application/json
+                      </span>
+                    </div>
+                    <pre className="p-3 text-xs leading-6 overflow-x-auto font-mono">
+                      {`{
+  "id": 42,
+  "name": "Sarah Chen",
+  "email": "sarah@example.dev",
+  "roles": ["admin", "editor"]
+}`}
+                    </pre>
+                  </div>
                 </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        {/* Features */}
+        <section className="container mx-auto py-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-balance">
+              Everything You Need
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              From simple GET requests to complex API workflows, GetMan provides
+              all the tools you need for efficient API development.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Primary feature: larger span with code */}
+            <Card className="lg:col-span-2 border shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center">
+                      <Code2 className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg">Code Generation</h3>
+                      <p className="text-muted-foreground">
+                        Generate ready-to-use snippets in JavaScript, Python,
+                        Go, and more.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 rounded-lg border bg-muted/40">
+                  <div className="flex items-center justify-between border-b px-3 py-2">
+                    <span className="text-xs text-muted-foreground">
+                      JavaScript
+                    </span>
+                    <Badge variant="secondary" className="font-mono">
+                      fetch
+                    </Badge>
+                  </div>
+                  <pre className="p-3 text-xs leading-6 overflow-x-auto font-mono">
+                    {`const res = await fetch("https://api.example.dev/v1/users?id=42")
+if (!res.ok) throw new Error("Request failed")
+const data = await res.json()
+console.log(data)`}
+                  </pre>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Other features */}
+            <Card className="border shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+              <CardContent className="p-6">
+                <div className="mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center">
+                    <Globe className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                <h3 className="font-semibold text-lg mb-2">
+                  Universal Compatibility
+                </h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Works with any REST API. Import cURL, test endpoints, and
+                  export results effortlessly.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+              <CardContent className="p-6">
+                <div className="mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center">
+                    <Shield className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                <h3 className="font-semibold text-lg mb-2">Secure & Private</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Your API keys and sensitive data stay safe with
+                  enterprise-grade encryption and privacy.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+              <CardContent className="p-6">
+                <div className="mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center">
+                    <Clock className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                <h3 className="font-semibold text-lg mb-2">Request History</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Track every request with detailed history, response times, and
+                  status codes.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+              <CardContent className="p-6">
+                <div className="mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center">
+                    <Users className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                <h3 className="font-semibold text-lg mb-2">Team Collections</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Organize requests into collections and share them for seamless
+                  collaboration.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        {/* Testimonials */}
+        <section className="container mx-auto py-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-balance">
+              Loved by Developers
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                quote:
+                  "GetMan has completely transformed how our team tests APIs. The code generation feature alone saves us hours every week.",
+                author: "Sarah Chen",
+                role: "Senior Developer at TechCorp",
+              },
+              {
+                quote:
+                  "Finally, a Postman alternative that doesn't feel bloated. Clean, fast, and exactly what we needed.",
+                author: "Marcus Rodriguez",
+                role: "API Lead at StartupXYZ",
+              },
+              {
+                quote:
+                  "The collaboration features are game-changing. Our entire team can now work seamlessly on API testing.",
+                author: "Emily Johnson",
+                role: "Engineering Manager",
+              },
+            ].map((t, i) => (
+              <Card
+                key={i}
+                className="border shadow-sm hover:shadow-md transition-all hover:-translate-y-1"
+              >
+                <CardContent className="p-6">
+                  <div className="flex gap-1 mb-3" aria-label="5 star rating">
+                    {[...Array(5)].map((_, j) => (
+                      <Star
+                        key={j}
+                        className="w-4 h-4 text-yellow-400 fill-yellow-400"
+                      />
+                    ))}
+                  </div>
+                  <p className="text-muted-foreground mb-5 italic leading-relaxed">
+                    "{t.quote}"
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center"
+                      aria-hidden
+                    >
+                      <span className="text-white font-semibold text-xs">
+                        {t.author
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-medium">{t.author}</p>
+                      <p className="text-sm text-muted-foreground">{t.role}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="container mx-auto py-20">
+          <div className="rounded-2xl border p-10 text-center bg-card">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Ready to Supercharge Your API Testing?
+            </h2>
+            <p className="text-muted-foreground mb-8 max-w-2xl mx-auto text-lg leading-relaxed">
+              Join thousands of developers who trust GetMan for their API
+              testing needs. Start building better APIs today.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button
+                size="lg"
+                className="group bg-blue-600 hover:bg-blue-700 text-white text-base px-7 h-11"
+                asChild
+              >
+                <a href="/signup">
+                  Get Started for Free
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </a>
+              </Button>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <CheckCircle className="w-5 h-5 text-blue-600" />
+                <span>No credit card required</span>
               </div>
             </div>
-          </footer>
-        </div>
+          </div>
+        </section>
+      </main>
 
-        {/* Auth Modal */}
-        <AuthModal
-          isOpen={showAuthModal}
-          onClose={() => setShowAuthModal(false)}
-          mode={authMode}
-          onModeChange={setAuthMode}
-        />
-      </div>
+      {/* Footer */}
+      <footer className="border-t mx-auto">
+        <div className="container mx-auto py-10">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <Zap className="w-5 h-5 text-white" />
+              </div>
+              <span className="font-bold text-lg">GetMan</span>
+            </div>
+
+            <div className="flex items-center gap-6 text-muted-foreground">
+              <span className="text-sm">
+                © 2024 GetMan. All rights reserved.
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hover:bg-accent"
+                asChild
+              >
+                <a
+                  href="https://github.com"
+                  rel="noreferrer"
+                  target="_blank"
+                  aria-label="GitHub"
+                >
+                  <Github className="w-5 h-5" />
+                </a>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        mode={authMode}
+        onModeChange={setAuthMode}
+      />
     </div>
   );
 }

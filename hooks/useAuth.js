@@ -1,14 +1,15 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { account } from '@/lib/appwrite';
+import { createContext, useContext, useEffect, useState } from "react";
+import { account } from "@/lib/appwrite";
+import { OAuthProvider } from "appwrite";
 
 const AuthContext = createContext();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -45,7 +46,8 @@ export const AuthProvider = ({ children }) => {
 
   const loginWithGoogle = async () => {
     try {
-      account.createOAuth2Session('google', 
+      account.createOAuth2Session(
+        OAuthProvider.Google,
         `${window.location.origin}/dashboard`, // success URL
         `${window.location.origin}/` // failure URL
       );
@@ -56,7 +58,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (email, password, name) => {
     try {
-      await account.create('unique()', email, password, name);
+      await account.create("unique()", email, password, name);
       return await login(email, password);
     } catch (error) {
       return { success: false, error: error.message };
@@ -65,7 +67,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await account.deleteSession('current');
+      await account.deleteSession("current");
       setUser(null);
       return { success: true };
     } catch (error) {
@@ -83,9 +85,5 @@ export const AuthProvider = ({ children }) => {
     checkAuth,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
